@@ -8,7 +8,7 @@ class Base(DeclarativeBase):
     pass
 
 
-class Todo(Base):
+class Contact(Base):
     __tablename__ = 'contacts'
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(150))
