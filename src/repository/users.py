@@ -9,8 +9,8 @@ from src.schema.user import UserSchema
 
 
 async def get_user_by_email(email: str, db: AsyncSession = Depends(get_db)):
-    stmt = select(User).filter_by(email=email)
-    user = await db.execute(stmt)
+    statement = select(User).filter_by(email=email)
+    user = await db.execute(statement)
     user = user.scalar_one_or_none()
     return user
 
