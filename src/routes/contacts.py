@@ -29,11 +29,8 @@ async def get_contacts(limit: int = Query(10, ge=10, le=100), offset: int = Quer
 
 @router.get('/all', response_model=list[ContactResponse], dependencies=[Depends(access_to_route_all)])
 async def get_all_contacts(limit: int = Query(10, ge=10, le=100), offset: int = Query(0, ge=0),
-                           name: str = Query(None, title="Name filter"),
-                           surname: str = Query(None, title="Surname filter"),
-                           email: str = Query(None, title="Email filter"), db: AsyncSession = Depends(get_db),
-                           user: User = Depends(auth_service.get_current_user)):
-    contacts = await repository_contacts.get_contacts(limit, offset, name, surname, email, db, user)
+                           db: AsyncSession = Depends(get_db)):
+    contacts = await repository_contacts.get_all_contacts(limit, offset, db)
     if contacts:
         return contacts
     else:
