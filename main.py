@@ -45,7 +45,9 @@ async def user_agent_ban_middleware(request: Request, call_next: Callable):
     return response
 
 
-app.mount("/static", StaticFiles(directory="src/static"), name="static")
+BASE_DIR = Path('.')
+
+app.mount("/static", StaticFiles(directory=BASE_DIR / "src" / "static"), name="static")
 
 app.include_router(auth.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
@@ -63,7 +65,7 @@ async def startup():
     await FastAPILimiter.init(r)
 
 
-templates = Jinja2Templates(directory="src/templates")
+templates = Jinja2Templates(directory=BASE_DIR / "src" / "templates")
 
 
 @app.get("/", response_class=HTMLResponse)
