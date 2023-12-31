@@ -4,12 +4,15 @@ from fastapi import APIRouter, HTTPException, Depends, status, Path, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.db import get_db
-from src.entity.models import User
+from src.entity.models import User, Role
 from src.repository import contacts as repository_contacts
 from src.schema.contact import ContactSchema, ContactUpdate, ContactResponse
 from src.services.auth import auth_service
+from src.services.roles import RoleAccess
 
 router = APIRouter(prefix='/contacts', tags=['contacts'])
+
+access_to_route_all = RoleAccess([Role.admin, Role.moderator])
 
 
 @router.get('/', response_model=list[ContactResponse])
@@ -17,6 +20,19 @@ async def get_contacts(limit: int = Query(10, ge=10, le=100), offset: int = Quer
                        name: str = Query(None, title="Name filter"), surname: str = Query(None, title="Surname filter"),
                        email: str = Query(None, title="Email filter"), db: AsyncSession = Depends(get_db),
                        user: User = Depends(auth_service.get_current_user)):
+    contacts = await repository_contacts.get_contacts(limit, offset, name, surname, email, db, user)
+    if contacts:
+        return contacts
+    else:
+        raise HTTPException(status_code=404, detail="Contacts not found")
+
+
+@router.get('/all', response_model=list[ContactResponse], dependencies=[Depends(access_to_route_all)])
+async def get_all_contacts(limit: int = Query(10, ge=10, le=100), offset: int = Query(0, ge=0),
+                           name: str = Query(None, title="Name filter"),
+                           surname: str = Query(None, title="Surname filter"),
+                           email: str = Query(None, title="Email filter"), db: AsyncSession = Depends(get_db),
+                           user: User = Depends(auth_service.get_current_user)):
     contacts = await repository_contacts.get_contacts(limit, offset, name, surname, email, db, user)
     if contacts:
         return contacts
