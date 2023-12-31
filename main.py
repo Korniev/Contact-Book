@@ -1,5 +1,4 @@
 import re
-from ipaddress import ip_address
 from typing import Callable
 from pathlib import Path
 
@@ -64,9 +63,14 @@ async def startup():
     await FastAPILimiter.init(r)
 
 
-@app.get("/")
-def index():
-    return {"message": "Contacts Book Application"}
+templates = Jinja2Templates(directory="src/templates")
+
+
+@app.get("/", response_class=HTMLResponse)
+def index(request: Request):
+    return templates.TemplateResponse(
+        "index.html", {"request": request, "author": "Build by Y.Korniev"}
+    )
 
 
 @app.get("/api/healthchecker")
