@@ -24,6 +24,23 @@ conf = ConnectionConfig(
 
 
 async def send_email(email: EmailStr, username: str, host: str):
+    """
+        Asynchronously sends an email for account verification.
+
+        This function generates a verification token and sends an email to the user with a link to confirm their email address.
+
+        Args:
+            email (EmailStr): The recipient's email address.
+            username (str): The username of the recipient.
+            host (str): The host URL for constructing the verification link.
+
+        Notes:
+            - The email is sent with an HTML template ('verify_email.html').
+            - The function catches and logs any connection errors during email sending.
+
+        Raises:
+            ConnectionErrors: If there is an issue with the email server connection.
+        """
     try:
         token_verification = auth_service.create_email_token({"sub": email})
         message = MessageSchema(
