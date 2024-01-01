@@ -3,6 +3,7 @@ import os
 
 sys.path.append(os.path.abspath('..'))
 
+
 project = 'ContactBook'
 copyright = '2024, Yevhenii Korniev'
 author = 'Yevhenii Korniev'

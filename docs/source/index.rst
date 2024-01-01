@@ -1,14 +1,15 @@
-.. ContactBook documentation master file, created by
-sphinx-quickstart on Mon Jan  1 11:18:44 2024.
-You can adapt this file completely to your liking, but it should at least
-contain the root `toctree` directive.
+.. Todo project documentation master file, created by
+   sphinx-quickstart on Tue Dec 26 19:40:01 2023.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
 
-Welcome to ContactBook's documentation!
-=======================================
+Welcome to Todo project's documentation!
+========================================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
 
 REST API main
 ===================
@@ -19,15 +20,16 @@ REST API main
 
 
 REST API repository Contacts
-=============================
+============================
 .. automodule:: src.repository.contacts
   :members:
   :undoc-members:
   :show-inheritance:
 
 
+
 REST API repository Users
-==========================
+=========================
 .. automodule:: src.repository.users
   :members:
   :undoc-members:
@@ -74,16 +76,8 @@ REST API service Email
   :show-inheritance:
 
 
-REST API service Roles
-=========================
-.. automodule:: src.services.roles
-  :members:
-  :undoc-members:
-  :show-inheritance:
-
-
 Indices and tables
-===================
+==================
 
 * :ref:`genindex`
 * :ref:`modindex`
