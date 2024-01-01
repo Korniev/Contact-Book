@@ -32,6 +32,17 @@ user_agent_ban_list = [r"Googlebot", r"Python-urllib"]
 
 @app.middleware("http")
 async def user_agent_ban_middleware(request: Request, call_next: Callable):
+    """
+        Middleware to block requests from user agents in the ban list.
+
+        Args:
+            request (Request): The incoming HTTP request.
+            call_next (Callable): The next middleware or endpoint in the processing order.
+
+        Returns:
+            JSONResponse: A 403 Forbidden response if the user agent is banned.
+            Response: The response from the subsequent request handling if not banned.
+        """
     print(request.headers.get("Authorization"))
     user_agent = request.headers.get("user-agent")
     print(user_agent)
@@ -56,6 +67,14 @@ app.include_router(contacts.router, prefix="/api")
 
 @app.on_event("startup")
 async def startup():
+    """
+        Startup event handler for the FastAPI application.
+
+        Initializes components like Redis for rate limiting.
+
+        Raises:
+            ConnectionErrors: If there is an issue connecting to Redis.
+        """
     r = await redis.Redis(
         host=config.REDIS_DOMAIN,
         port=config.REDIS_PORT,
@@ -70,6 +89,15 @@ templates = Jinja2Templates(directory=BASE_DIR / "src" / "templates")
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
+    """
+        Serves the index HTML page.
+
+        Args:
+            request (Request): The incoming HTTP request.
+
+        Returns:
+            TemplateResponse: The rendered index.html template.
+        """
     return templates.TemplateResponse(
         "index.html", {"request": request, "author": "Build by Y.Korniev"}
     )
@@ -77,6 +105,20 @@ def index(request: Request):
 
 @app.get("/api/healthchecker")
 async def healthchecker(db: AsyncSession = Depends(get_db)):
+    """
+        Health check endpoint for the application.
+
+        Verifies database connectivity and returns a success message if successful.
+
+        Args:
+            db (AsyncSession): The database session, injected by FastAPI.
+
+        Returns:
+            dict: A success message if the database connection is healthy.
+
+        Raises:
+            HTTPException: If there is an issue with the database connection.
+        """
     try:
         # Make request
         result = await db.execute(text("SELECT 1"))
