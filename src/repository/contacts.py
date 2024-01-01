@@ -134,7 +134,7 @@ async def update_contact(contact_id: int, contact_update: ContactUpdate, db: Asy
         raise HTTPException(status_code=404, detail="Contact not found")
 
     if existing_contact:
-        for key, value in contact.model_dump().items():
+        for key, value in contact_update.model_dump().items():
             setattr(existing_contact, key, value)
         await db.commit()
         await db.refresh(existing_contact)
