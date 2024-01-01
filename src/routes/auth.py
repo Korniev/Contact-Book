@@ -15,6 +15,21 @@ get_refresh_token = HTTPBearer()
 
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def signup(body: UserSchema, bt: BackgroundTasks, request: Request, db: AsyncSession = Depends(get_db)):
+    """
+        Endpoint for user registration.
+
+        Args:
+            body (UserSchema): The user data for registration.
+            bt (BackgroundTasks): Background tasks for non-blocking operations.
+            request (Request): The request object.
+            db (AsyncSession): The database session, injected by FastAPI.
+
+        Returns:
+            UserResponse: The newly created user's data.
+
+        Raises:
+            HTTPException: If an account with the same email already exists.
+        """
     exist_user = await repositories_users.get_user_by_email(body.email, db)
     if exist_user:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Account already exists")
@@ -26,6 +41,19 @@ async def signup(body: UserSchema, bt: BackgroundTasks, request: Request, db: As
 
 @router.post("/login", response_model=TokenSchema)
 async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    """
+        Endpoint for user authentication and token generation.
+
+        Args:
+            body (OAuth2PasswordRequestForm): The user login credentials.
+            db (AsyncSession): The database session, injected by FastAPI.
+
+        Returns:
+            TokenSchema: Access and refresh JWT tokens.
+
+        Raises:
+            HTTPException: If email is invalid, not confirmed, or password is incorrect.
+        """
     user = await repositories_users.get_user_by_email(body.username, db)
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email")
@@ -43,6 +71,19 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = 
 @router.get('/refresh_token')
 async def refresh_token(credentials: HTTPAuthorizationCredentials = Depends(get_refresh_token),
                         db: AsyncSession = Depends(get_db)):
+    """
+        Endpoint to refresh JWT tokens.
+
+        Args:
+            credentials (HTTPAuthorizationCredentials): The current refresh token.
+            db (AsyncSession): The database session, injected by FastAPI.
+
+        Returns:
+            dict: New access and refresh JWT tokens.
+
+        Raises:
+            HTTPException: If the refresh token is invalid.
+        """
     token = credentials.credentials
     email = await auth_service.decode_refresh_token(token)
     user = await repositories_users.get_user_by_email(email, db)
@@ -58,6 +99,19 @@ async def refresh_token(credentials: HTTPAuthorizationCredentials = Depends(get_
 
 @router.get('/confirmed_email/{token}')
 async def confirmed_email(token: str, db: AsyncSession = Depends(get_db)):
+    """
+        Endpoint to confirm user's email address.
+
+        Args:
+            token (str): The token for email verification.
+            db (AsyncSession): The database session, injected by FastAPI.
+
+        Returns:
+            dict: Confirmation message.
+
+        Raises:
+            HTTPException: If the verification fails or email is already confirmed.
+        """
     email = await auth_service.get_email_from_token(token)
     user = await repositories_users.get_user_by_email(email, db)
     if user is None:
@@ -71,6 +125,18 @@ async def confirmed_email(token: str, db: AsyncSession = Depends(get_db)):
 @router.post('/request_email')
 async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, request: Request,
                         db: AsyncSession = Depends(get_db)):
+    """
+        Endpoint to request email confirmation.
+
+        Args:
+            body (RequestEmail): The request containing the user's email.
+            background_tasks (BackgroundTasks): Background tasks for sending email.
+            request (Request): The request object.
+            db (AsyncSession): The database session, injected by FastAPI.
+
+        Returns:
+            dict: Message indicating the result of the email request.
+        """
     user = await repositories_users.get_user_by_email(body.email, db)
 
     if user.confirmed:
@@ -82,6 +148,17 @@ async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, r
 
 @router.get('/{username}')
 async def request_email(username: str, response: Response, db: AsyncSession = Depends(get_db)):
+    """
+        Endpoint to handle email open tracking (used for email confirmation tracking).
+
+        Args:
+            username (str): The username of the user.
+            response (Response): The response object.
+            db (AsyncSession): The database session, injected by FastAPI.
+
+        Returns:
+            FileResponse: An image response used for tracking email opens.
+        """
     print('--------------------------------')
     print(f'{username} відкрив email в БД')
     print('--------------------------------')
