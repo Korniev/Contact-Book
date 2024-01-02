@@ -31,7 +31,7 @@ def test_signup(client, monkeypatch):
     assert "avatar" in data
 
 
-def test_signup_with_existing_email(client, monkeypatch):
+def test_signup_existing_email(client, monkeypatch):
     mock_send_email = Mock()
     monkeypatch.setattr("src.routes.auth.send_email", mock_send_email)
     response = client.post("api/auth/signup", json=real_user)
@@ -39,7 +39,7 @@ def test_signup_with_existing_email(client, monkeypatch):
     assert response.json() == {"detail": msg.ACCOUNT_EXISTS}
 
 
-def test_login_with_out_confirmed(client):
+def test_login_not_confirmed(client):
     response = client.post("api/auth/login",
                            data={"username": new_test_user["email"], "password": new_test_user["password"]})
     assert response.status_code == status.HTTP_401_UNAUTHORIZED, response.text
